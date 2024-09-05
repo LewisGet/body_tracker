@@ -8,6 +8,27 @@ import json
 
 
 @method_decorator(csrf_exempt, name='dispatch')
+class FingerView(View):
+    def get(self, request):
+        hand = request.GET.get('hand')
+        finger_index = request.GET.get('finger_index')
+
+        filters = {}
+        if hand is not None:
+            filters['hand'] = hand
+
+        if finger_index is not None:
+            filters['finger_index'] = finger_index
+
+        finger = Finger.objects.filter(**filters).first()
+
+        if finger:
+            return JsonResponse({'id': finger.id})
+
+        return JsonResponse({'error': 'No matching finger found'}, status=404)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
 class SegmentView(View):
     def get(self, request):
         data = request.GET
