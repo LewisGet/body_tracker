@@ -16,15 +16,21 @@ class Finger(models.Model):
         (4, 'Little'),
     ]
 
+    SEGMENT_CHOICES = [
+        (0, 'Distal'),  # 末節
+        (1, 'Middle'),  # 中截
+    ]
+
     hand = models.PositiveSmallIntegerField(choices=HAND_CHOICES)
     finger_index = models.PositiveSmallIntegerField(choices=FINGER_CHOICES)
+    segment_type = models.PositiveSmallIntegerField(choices=SEGMENT_CHOICES)
 
     baseline_x = models.FloatField(null=True, blank=True)
     baseline_y = models.FloatField(null=True, blank=True)
     baseline_z = models.FloatField(null=True, blank=True)
 
     class Meta:
-        unique_together = ('hand', 'finger_index')
+        unique_together = ('hand', 'finger_index', 'segment_type')
 
     def __str__(self):
         return json.dumps(self.to_dict())
@@ -32,28 +38,24 @@ class Finger(models.Model):
     def to_dict(self):
         return {
             "hand": self.get_hand_display(),
-            "finger_index": self.get_finger_index_display()
+            "finger_index": self.get_finger_index_display(),
+            "segment_type": self.get_segment_type_display(),
         }
 
     @classmethod
     def initialize_fingers(cls):
         if not cls.objects.exists():
             fingers = [
-                cls(hand=hand, finger_index=finger_index)
+                cls(hand=hand, finger_index=finger_index, segment_type=segment_type)
                 for hand, _ in cls.HAND_CHOICES
                 for finger_index, _ in cls.FINGER_CHOICES
+                for segment_type, _ in cls.SEGMENT_CHOICES
             ]
             cls.objects.bulk_create(fingers)
 
 
-class Segment(models.Model):
-    SEGMENT_CHOICES = [
-        (0, 'Distal'),  # 末節
-        (1, 'Middle'),  # 中截
-    ]
-
+class ActionLog(models.Model):
     finger = models.ForeignKey(Finger, on_delete=models.CASCADE)
-    segment_type = models.PositiveSmallIntegerField(choices=SEGMENT_CHOICES)
     x = models.FloatField()
     y = models.FloatField()
     z = models.FloatField()
@@ -62,7 +64,6 @@ class Segment(models.Model):
     def __str__(self):
         return json.dumps({
             "finger": self.finger.to_dict(),
-            "segment_type": self.get_segment_type_display(),
             "coordinates": {
                 "x": self.x,
                 "y": self.y,

@@ -3,8 +3,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views import View
-from .models import Finger, Segment
-from .forms import FingerForm, SegmentForm
+from .models import *
+from .forms import *
 import json
 
 
@@ -18,6 +18,7 @@ class FingerView(View):
 
         hand = form.cleaned_data['hand']
         finger_index = form.cleaned_data['finger_index']
+        segment_type = form.cleaned_data['segment_type']
 
         filters = {}
         if hand is not None:
@@ -35,7 +36,7 @@ class FingerView(View):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class SegmentView(View):
+class ActionLogView(View):
     def get(self, request):
         data = request.GET
 
@@ -47,7 +48,7 @@ class SegmentView(View):
         return self.create(data)
 
     def create(self, data):
-        form = SegmentForm(data)
+        form = ActionLogForm(data)
 
         if not form.is_valid():
             return JsonResponse({'error': 'Invalid input'}, status=400)
@@ -57,21 +58,18 @@ class SegmentView(View):
         except Finger.DoesNotExist:
             return JsonResponse({'error': 'Finger not found'}, status=404)
 
-        segment_type = form.cleaned_data['segment_type']
-
         x = form.cleaned_data['x']
         y = form.cleaned_data['y']
         z = form.cleaned_data['z']
 
-        segment = Segment.objects.create(finger=finger, segment_type=segment_type, x=x, y=y, z=z)
+        action_log = ActionLog.objects.create(finger=finger, x=x, y=y, z=z)
 
         return JsonResponse({
-            "finger": segment.finger.to_dict(),
-            "segment_type": segment.get_segment_type_display(),
+            "finger": action_log.finger.to_dict(),
             "coordinates": {
-                "x": segment.x,
-                "y": segment.y,
-                "z": segment.z
+                "x": action_log.x,
+                "y": action_log.y,
+                "z": action_log.z
             },
-            "timestamp": segment.timestamp.isoformat()
+            "timestamp": action_log.timestamp.isoformat()
         }, status=201)
