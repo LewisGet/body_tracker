@@ -9,9 +9,17 @@ import json
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SegmentView(View):
+    def get(self, request):
+        data = request.GET
+
+        return self.create(data)
+
     def post(self, request):
         data = json.loads(request.body)
 
+        return self.create(data)
+
+    def create(self, data):
         finger_id = data.get('finger_id')
         segment_type = data.get('segment_type')
 
