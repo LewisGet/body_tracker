@@ -19,6 +19,10 @@ class Finger(models.Model):
     hand = models.PositiveSmallIntegerField(choices=HAND_CHOICES)
     finger_index = models.PositiveSmallIntegerField(choices=FINGER_CHOICES)
 
+    baseline_x = models.FloatField(null=True, blank=True)
+    baseline_y = models.FloatField(null=True, blank=True)
+    baseline_z = models.FloatField(null=True, blank=True)
+
     class Meta:
         unique_together = ('hand', 'finger_index')
 

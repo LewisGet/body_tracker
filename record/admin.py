@@ -4,7 +4,7 @@ from .models import Finger, Segment
 
 @admin.register(Finger)
 class FingerAdmin(admin.ModelAdmin):
-    list_display = ('hand', 'finger_index')
+    list_display = ('hand', 'finger_index', 'baseline_x', 'baseline_y', 'baseline_z')
     list_filter = ('hand', 'finger_index')
     search_fields = ('hand', 'finger_index')
 
