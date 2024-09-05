@@ -8,6 +8,21 @@ from .forms import *
 import json
 
 
+class GetPostView(View):
+    def get(self, request):
+        data = request.GET
+
+        return self.create(data)
+
+    def post(self, request):
+        data = json.loads(request.body)
+
+        return self.create(data)
+
+    def create(self, data):
+        return JsonResponse({'error': 'only extends.'}, status=500)
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class FingerView(View):
     def get(self, request):
@@ -33,17 +48,35 @@ class FingerView(View):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class ActionLogView(View):
-    def get(self, request):
-        data = request.GET
+class UpdateBaselineView(GetPostView):
+    def create(self, data):
+        form = UpdateBaselineForm(data)
 
-        return self.create(data)
+        if not form.is_valid():
+            return JsonResponse({'error': 'Invalid input.'}, status=400)
 
-    def post(self, request):
-        data = json.loads(request.body)
+        finger_id = form.cleaned_data['finger_id']
+        baseline_x = form.cleaned_data['baseline_x']
+        baseline_y = form.cleaned_data['baseline_y']
+        baseline_z = form.cleaned_data['baseline_z']
 
-        return self.create(data)
+        try:
+            finger = Finger.objects.get(id=finger_id)
 
+            finger.baseline_x = baseline_x
+            finger.baseline_y = baseline_y
+            finger.baseline_z = baseline_z
+
+            finger.save()
+            return JsonResponse({'status': 'success', 'message': 'Baseline data updated successfully'})
+        except Finger.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Finger not found'}, status=404)
+
+        return JsonResponse({'status': 'error', 'message': 'Invalid input'}, status=400)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ActionLogView(GetPostView):
     def create(self, data):
         form = ActionLogForm(data)
 
