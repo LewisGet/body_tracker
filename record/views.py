@@ -4,14 +4,20 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views import View
 from .models import Finger, Segment
+from .forms import FingerForm
 import json
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class FingerView(View):
     def get(self, request):
-        hand = request.GET.get('hand')
-        finger_index = request.GET.get('finger_index')
+        form = FingerForm(request.GET)
+
+        if not form.is_valid():
+            return JsonResponse({'error': 'Invalid input. Both hand and finger_index must be integers.'}, status=400)
+
+        hand = form.cleaned_data['hand']
+        finger_index = form.cleaned_data['finger_index']
 
         filters = {}
         if hand is not None:
