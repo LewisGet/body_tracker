@@ -31,6 +31,17 @@ class Finger(models.Model):
             "finger_index": self.get_finger_index_display()
         }
 
+    @classmethod
+    def initialize_fingers(cls):
+        if not cls.objects.exists():
+            fingers = [
+                cls(hand=hand, finger_index=finger_index)
+                for hand, _ in cls.HAND_CHOICES
+                for finger_index, _ in cls.FINGER_CHOICES
+            ]
+            cls.objects.bulk_create(fingers)
+
+
 class Segment(models.Model):
     SEGMENT_CHOICES = [
         (0, 'Distal'),  # 末節
