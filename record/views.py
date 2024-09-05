@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views import View
 from .models import Finger, Segment
-from .forms import FingerForm
+from .forms import FingerForm, SegmentForm
 import json
 
 
@@ -47,14 +47,22 @@ class SegmentView(View):
         return self.create(data)
 
     def create(self, data):
-        finger_id = data.get('finger_id')
-        segment_type = data.get('segment_type')
+        form = SegmentForm(data)
 
-        x = data.get('x')
-        y = data.get('y')
-        z = data.get('z')
+        if not form.is_valid():
+            return JsonResponse({'error': 'Invalid input'}, status=400)
 
-        finger = Finger.objects.get(id=finger_id)
+        try:
+            finger = Finger.objects.get(id=form.cleaned_data['finger_id'])
+        except Finger.DoesNotExist:
+            return JsonResponse({'error': 'Finger not found'}, status=404)
+
+        segment_type = form.cleaned_data['segment_type']
+
+        x = form.cleaned_data['x']
+        y = form.cleaned_data['y']
+        z = form.cleaned_data['z']
+
         segment = Segment.objects.create(finger=finger, segment_type=segment_type, x=x, y=y, z=z)
 
         return JsonResponse({
