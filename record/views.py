@@ -16,16 +16,13 @@ class FingerView(View):
         if not form.is_valid():
             return JsonResponse({'error': 'Invalid input. Both hand and finger_index must be integers.'}, status=400)
 
-        hand = form.cleaned_data['hand']
-        finger_index = form.cleaned_data['finger_index']
-        segment_type = form.cleaned_data['segment_type']
-
         filters = {}
-        if hand is not None:
-            filters['hand'] = hand
 
-        if finger_index is not None:
-            filters['finger_index'] = finger_index
+        for filter_index in ['hand', 'finger_index', 'segment_type']:
+            filter_data = form.cleaned_data[filter_index]
+
+            if filter_data is not None:
+                filters[filter_index] = filter_data
 
         finger = Finger.objects.filter(**filters).first()
 
