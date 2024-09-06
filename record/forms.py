@@ -11,7 +11,8 @@ class FingerForm(forms.Form):
 
 
 class UpdateBaselineForm(forms.Form):
-    finger_id = forms.IntegerField(required=True)
+    target_id = forms.IntegerField(required=True)
+    target_type = forms.IntegerField(required=True)
     baseline_x = forms.FloatField(required=True)
     baseline_y = forms.FloatField(required=True)
     baseline_z = forms.FloatField(required=True)

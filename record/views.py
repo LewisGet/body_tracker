@@ -55,22 +55,28 @@ class UpdateBaselineView(GetPostView):
         if not form.is_valid():
             return JsonResponse({'error': 'Invalid input.'}, status=400)
 
-        finger_id = form.cleaned_data['finger_id']
+        target_id = form.cleaned_data['target_id']
+        target_type = form.cleaned_data['target_type']
         baseline_x = form.cleaned_data['baseline_x']
         baseline_y = form.cleaned_data['baseline_y']
         baseline_z = form.cleaned_data['baseline_z']
 
         try:
-            finger = Finger.objects.get(id=finger_id)
+            if target_type == 0:
+                parts = Finger.objects.get(id=target_id)
+            else:
+                parts = HeadArmLegBody.objects.get(id=target_id)
 
-            finger.baseline_x = baseline_x
-            finger.baseline_y = baseline_y
-            finger.baseline_z = baseline_z
+            parts.baseline_x = baseline_x
+            parts.baseline_y = baseline_y
+            parts.baseline_z = baseline_z
 
-            finger.save()
+            parts.save()
             return JsonResponse({'status': 'success', 'message': 'Baseline data updated successfully'})
         except Finger.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Finger not found'}, status=404)
+        except HeadArmLegBody.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'HeadArmLegBody not found'}, status=404)
 
         return JsonResponse({'status': 'error', 'message': 'Invalid input'}, status=400)
 
