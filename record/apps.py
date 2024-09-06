@@ -6,5 +6,10 @@ class RecordConfig(AppConfig):
     name = 'record'
 
     def ready(self):
-        from .models import Finger
-        Finger.initialize_fingers()
+        from .models import Finger, HeadArmLegBody
+
+        try:
+            Finger.initialize_fingers()
+            HeadArmLegBody.initialize_parts()
+        except:
+            pass

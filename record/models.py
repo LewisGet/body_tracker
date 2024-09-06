@@ -99,12 +99,12 @@ class HeadArmLegBody(models.Model):
 
     def to_dict(self):
         return {
-            "side": self.get_hand_display(),
+            "side": self.get_side_display(),
             "segment_type": self.get_segment_type_display(),
         }
 
     @classmethod
-    def initialize_arms(cls):
+    def initialize_parts(cls):
         if not cls.objects.exists():
             parts = [
                 cls(side=side, segment_type=segment_type)
