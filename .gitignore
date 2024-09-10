@@ -3,7 +3,7 @@ db.sqlite3
 .idea/*
 
 # not to upload development setting
-body_tracker/settings.py
+body_tracker/project_config.py
 
 # win
 *.DS_Store
