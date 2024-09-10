@@ -11,8 +11,8 @@ class FingerAdmin(admin.ModelAdmin):
 
 @admin.register(ActionLog)
 class ActionLogAdmin(admin.ModelAdmin):
-    list_display = ('finger', 'x', 'y', 'z', 'timestamp')
-    search_fields = ('finger__hand', 'finger__finger_index')
+    list_display = ('finger', 'head_arm_leg_body', 'x', 'y', 'z', 'timestamp')
+    search_fields = ('finger__hand', 'finger__finger_index', 'finger__segment_type', 'head_arm_leg_body__side', 'head_arm_leg_body__segment_type')
 
 
 @admin.register(HeadArmLegBody)

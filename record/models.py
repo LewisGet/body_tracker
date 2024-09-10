@@ -115,19 +115,23 @@ class HeadArmLegBody(models.Model):
 
 
 class ActionLog(models.Model):
-    finger = models.ForeignKey(Finger, on_delete=models.CASCADE)
+    finger = models.ForeignKey(Finger, on_delete=models.CASCADE, null=True, blank=True)
+    head_arm_leg_body = models.ForeignKey(HeadArmLegBody, on_delete=models.CASCADE, null=True, blank=True)
     x = models.FloatField()
     y = models.FloatField()
     z = models.FloatField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return json.dumps({
-            "finger": self.finger.to_dict(),
-            "coordinates": {
-                "x": self.x,
-                "y": self.y,
-                "z": self.z
-            },
+        json_value = {
+            "vector": [self.x, self.y, self.z],
             "timestamp": self.timestamp.isoformat()
-        })
+        }
+
+        if self.finger is not None:
+            json_value["finger"] = self.finger.to_dict()
+
+        if self.head_arm_leg_body is not None:
+            json_value["head_arm_leg_body"] = self.head_arm_leg_body.to_dict()
+
+        return json.dumps(json_value)

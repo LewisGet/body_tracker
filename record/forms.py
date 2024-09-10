@@ -19,7 +19,8 @@ class UpdateBaselineForm(forms.Form):
 
 
 class ActionLogForm(forms.Form):
-    finger_id = forms.IntegerField(required=True)
+    target_id = forms.IntegerField(required=True)
+    target_type = forms.IntegerField(required=True)
     x = forms.FloatField(required=True)
     y = forms.FloatField(required=True)
     z = forms.FloatField(required=True)

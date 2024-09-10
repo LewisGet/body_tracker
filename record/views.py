@@ -82,26 +82,35 @@ class UpdateBaselineView(GetPostView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class ActionLogView(GetPostView):
+class CreateActionLogView(GetPostView):
     def create(self, data):
         form = ActionLogForm(data)
 
         if not form.is_valid():
             return JsonResponse({'error': 'Invalid input'}, status=400)
 
-        try:
-            finger = Finger.objects.get(id=form.cleaned_data['finger_id'])
-        except Finger.DoesNotExist:
-            return JsonResponse({'error': 'Finger not found'}, status=404)
-
+        target_id = form.cleaned_data['target_id']
+        target_type = form.cleaned_data['target_type']
         x = form.cleaned_data['x']
         y = form.cleaned_data['y']
         z = form.cleaned_data['z']
 
-        action_log = ActionLog.objects.create(finger=finger, x=x, y=y, z=z)
+        try:
+            if target_type == 0:
+                parts = Finger.objects.get(id=target_id)
+                action_log = ActionLog.objects.create(finger=parts, x=x, y=y, z=z)
+            else:
+                parts = HeadArmLegBody.objects.get(id=target_id)
+                action_log = ActionLog.objects.create(head_arm_leg_body=parts, x=x, y=y, z=z)
+
+        except Finger.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Finger not found'}, status=404)
+        except HeadArmLegBody.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'HeadArmLegBody not found'}, status=404)
 
         return JsonResponse({
-            "finger": action_log.finger.to_dict(),
+            "target_id": target_id,
+            "target_type": parts._meta.model_name,
             "coordinates": {
                 "x": action_log.x,
                 "y": action_log.y,
