@@ -2,15 +2,15 @@
 
 
 {% block content %}
-  <h2>Keyframes</h2>
-  <a href="{% url 'keyframe_create' %}">Add New Keyframe</a>
-  <ul>
-    {% for keyframe in object_list %}
-      <li>
-        {{ keyframe.timestamp }} - {{ keyframe.description }}
-        <a href="{% url 'keyframe_edit' keyframe.pk %}">Edit</a>
-        <a href="{% url 'keyframe_delete' keyframe.pk %}">Delete</a>
-      </li>
-    {% endfor %}
-  </ul>
+    <h2>Keyframes</h2>
+    <a href="{% url 'keyframe_create' %}">Add New Keyframe</a>
+    <ul>
+        {% for keyframe in object_list %}
+        <li>
+            {{ keyframe.timestamp }} - {{ keyframe.description }}
+            <a href="{% url 'keyframe_edit' keyframe.pk %}">Edit</a>
+            <a href="{% url 'keyframe_delete' keyframe.pk %}">Delete</a>
+        </li>
+        {% endfor %}
+    </ul>
 {% endblock %}
