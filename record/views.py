@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -118,3 +118,19 @@ class CreateActionLogView(GetPostView):
             },
             "timestamp": action_log.timestamp.isoformat()
         }, status=201)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CreateImageLogView(View):
+    def get(self, request):
+        form = ImageLogForm()
+
+        return render(request, 'base_form.html', {'form': form})
+
+    def post(self, request):
+        form = ImageLogForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            form.save()
+
+        return redirect('create_image_log')

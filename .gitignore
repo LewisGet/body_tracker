@@ -17,3 +17,7 @@ body_tracker/settings.py
 .coverage
 htmlcov
 htmlcov/*
+
+# upload file
+media
+media/*

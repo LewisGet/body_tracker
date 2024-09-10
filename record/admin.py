@@ -20,3 +20,10 @@ class HeadArmLegBodyAdmin(admin.ModelAdmin):
     list_display = ('side', 'segment_type', 'baseline_x', 'baseline_y', 'baseline_z')
     list_filter = ('side', 'segment_type')
     search_fields = ('side', 'segment_type')
+
+
+@admin.register(ImageLog)
+class ImageLogAdmin(admin.ModelAdmin):
+    list_display = ('id', 'timestamp')
+    list_filter = ('id', 'timestamp')
+    search_fields = ('id', 'timestamp')

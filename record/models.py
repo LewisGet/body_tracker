@@ -1,5 +1,15 @@
-import json
 from django.db import models
+import hashlib
+import time
+import json
+
+
+def image_upload_rename(instance, filename):
+    timestamp = int(time.time())
+    md5_hash = hashlib.md5(filename.encode()).hexdigest()
+    new_filename = f"{md5_hash}_{timestamp}.jpg"
+
+    return f"upload_images/{new_filename}"
 
 
 class Finger(models.Model):
@@ -135,3 +145,11 @@ class ActionLog(models.Model):
             json_value["head_arm_leg_body"] = self.head_arm_leg_body.to_dict()
 
         return json.dumps(json_value)
+
+
+class ImageLog(models.Model):
+    image = models.ImageField(upload_to=image_upload_rename)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.id) + " - " + str(self.timestamp)

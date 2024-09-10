@@ -1,4 +1,5 @@
 from django import forms
+from .models import ImageLog
 
 
 class FingerForm(forms.Form):
@@ -24,3 +25,9 @@ class ActionLogForm(forms.Form):
     x = forms.FloatField(required=True)
     y = forms.FloatField(required=True)
     z = forms.FloatField(required=True)
+
+
+class ImageLogForm(forms.ModelForm):
+    class Meta:
+        model = ImageLog
+        fields = ['image']
