@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Create Keyframes</h2>
+    <form method="post">
+        {% csrf_token %}
+        <ul>
+            {% for image_log in form.fields.timestamps.queryset %}
+            <li>
+                <label>
+                    <input type="checkbox" name="timestamps" value="{{ image_log.id }}">
+                    <img src="{{ image_log.image.url }}" alt="Image" style="width: 100px; height: auto;">
+                    {{ image_log.timestamp }}
+                </label>
+            </li>
+            {% endfor %}
+        </ul>
+        <button type="submit">Save</button>
+    </form>
+{% endblock %}
