@@ -8,4 +8,5 @@ urlpatterns = [
     path('<int:pk>/edit/', KeyframeUpdateView.as_view(), name='keyframe_edit'),
     path('<int:pk>/delete/', KeyframeDeleteView.as_view(), name='keyframe_delete'),
     path('batch/create/', BatchKeyframeCreateView.as_view(), name='keyframe_batch_create'),
+    path('smooth_logs/', SmoothFrameView.as_view(), name='keyframe_smooth_action_log'),
 ]
