@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import TemplateView
 from .views import *
 
 
@@ -10,4 +11,5 @@ urlpatterns = [
     path('image_log/create', CreateImageLogView.as_view(), name='create_image_log'),
     path('reset_log', ResetLogView.as_view(), name='reset_log'),
     path('api/onoff', ToggleApiView.as_view(), name="api_on_off"),
+    path('panel', TemplateView.as_view(template_name='panel.html'), name="panel"),
 ]

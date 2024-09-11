@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+
+{% block script %}
+<script>
+    function startCountdown(duration, display, callback)
+    {
+        var timer = duration, seconds;
+        var interval = setInterval(function () {
+            seconds = parseInt(timer % 60, 10);
+            display.textContent = seconds;
+
+            if (--timer < 0) {
+                clearInterval(interval);
+                callback();
+            }
+        }, 1000);
+    }
+
+    function toggleApiControl(enableDuration, disableDuration)
+    {
+        var enableDisplay = document.querySelector('#enable-countdown');
+        var disableDisplay = document.querySelector('#disable-countdown');
+
+        startCountdown(enableDuration, enableDisplay, function() {
+            fetch("{% url 'api_on_off' %}", { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('API toggled:', data);
+                    startCountdown(disableDuration, disableDisplay, function() {
+                        fetch("{% url 'api_on_off' %}", { method: 'GET' })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('API toggled:', data);
+                            });
+                    });
+                });
+        });
+    }
+
+    document.getElementById('toggle-short').addEventListener('click', function() {
+        toggleApiControl(5, 5);
+    });
+
+    document.getElementById('toggle-long').addEventListener('click', function() {
+        toggleApiControl(5, 30);
+    });
+
+    document.getElementById('toggle-custom').addEventListener('click', function() {
+        var enableDuration = parseInt(document.getElementById('enable-duration').value, 10);
+        var disableDuration = parseInt(document.getElementById('disable-duration').value, 10);
+        toggleApiControl(enableDuration, disableDuration);
+    });
+</script>
+{% endblock %}
+
+
+{% block content %}
+    <div class="container mt-5">
+        <h1>API Read/Write Control</h1>
+        <button id="toggle-short" class="btn btn-primary">Toggle API (5s/5s)</button>
+        <button id="toggle-long" class="btn btn-secondary">Toggle API (5s/30s)</button>
+        <p>Enable API in:
+            <span id="enable-countdown" class="fs-1 bg-primary text-white">5</span>
+        seconds</p>
+        <p>Disable API in:
+            <span id="disable-countdown" class="fs-1 bg-danger text-white">0</span>
+        seconds</p>
+
+        <h2>Custom settings</h2>
+        <div class="mb-3">
+            <label for="enable-duration" class="form-label">Enable Duration (seconds)</label>
+            <input type="number" id="enable-duration" class="form-control" value="10">
+        </div>
+        <div class="mb-3">
+            <label for="disable-duration" class="form-label">Disable Duration (seconds)</label>
+            <input type="number" id="disable-duration" class="form-control" value="10">
+        </div>
+        <button id="toggle-custom" class="btn btn-primary">Toggle API (Custom)</button>
+    </div>
+{% endblock %}
