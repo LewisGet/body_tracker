@@ -134,3 +134,17 @@ class CreateImageLogView(View):
             form.save()
 
         return redirect('create_image_log')
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ResetLogView(GetPostView):
+    def create(self, data):
+        confirm = str(data.get('confirm', "false")) == "true"
+
+        if not confirm:
+            return JsonResponse({'status': 'error', 'message': 'stop reset'}, status=500)
+
+        ActionLog.objects.all().delete()
+        ImageLog.objects.all().delete()
+
+        return JsonResponse({'status': 'done'}, status=201)
