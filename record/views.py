@@ -23,6 +23,14 @@ class GetPostView(View):
     def create(self, data):
         return JsonResponse({'error': 'only extends.'}, status=500)
 
+    def dispatch(self, request, *args, **kwargs):
+        api_control = ApiControl.objects.first()
+
+        if not api_control or not api_control.is_enabled:
+            return JsonResponse({'error': 'API read/write is currently disabled'}, status=403)
+
+        return super().dispatch(request, *args, **kwargs)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class FingerView(View):
@@ -165,7 +173,7 @@ class BatchCreateActionLogView(GetPostView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class CreateImageLogView(View):
+class CreateImageLogView(GetPostView):
     def get(self, request):
         form = ImageLogForm()
 

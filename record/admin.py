@@ -9,6 +9,11 @@ class FingerAdmin(admin.ModelAdmin):
     search_fields = ('hand', 'finger_index', 'segment_type')
 
 
+@admin.register(ApiControl)
+class ApiControlAdmin(admin.ModelAdmin):
+    list_display = ('is_enabled',)
+
+
 @admin.register(ActionLog)
 class ActionLogAdmin(admin.ModelAdmin):
     list_display = ('finger', 'head_arm_leg_body', 'x', 'y', 'z', 'timestamp')

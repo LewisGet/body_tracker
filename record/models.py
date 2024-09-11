@@ -124,6 +124,10 @@ class HeadArmLegBody(models.Model):
             cls.objects.bulk_create(parts)
 
 
+class ApiControl(models.Model):
+    is_enabled = models.BooleanField(default=False)
+
+
 class ActionLog(models.Model):
     finger = models.ForeignKey(Finger, on_delete=models.CASCADE, null=True, blank=True)
     head_arm_leg_body = models.ForeignKey(HeadArmLegBody, on_delete=models.CASCADE, null=True, blank=True)
