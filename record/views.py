@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.db import transaction
 from django.views import View
 from .models import *
 from .forms import *
@@ -118,6 +119,49 @@ class CreateActionLogView(GetPostView):
             },
             "timestamp": action_log.timestamp.isoformat()
         }, status=201)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class BatchCreateActionLogView(GetPostView):
+    def create(self, data):
+        def list_format(value, type_function):
+            return [type_function(d) for d in value.split(",")]
+
+        try:
+            with transaction.atomic():
+                for target_id, target_type, x, y, z in zip(
+                    list_format(data['target_id'], int),
+                    list_format(data['target_type'], int),
+                    list_format(data['x'], float),
+                    list_format(data['y'], float),
+                    list_format(data['z'], float)
+                ):
+                    data_dict = {
+                        "target_id": target_id,
+                        "target_type": target_type,
+                        "x": x,
+                        "y": y,
+                        "z": z,
+                    }
+                    form = ActionLogForm(data_dict)
+
+                    if not form.is_valid():
+                        raise ValueError('Invalid input')
+
+                    if target_type == 0:
+                        parts = Finger.objects.get(id=target_id)
+                        action_log = ActionLog.objects.create(finger=parts, x=x, y=y, z=z)
+                    else:
+                        parts = HeadArmLegBody.objects.get(id=target_id)
+                        action_log = ActionLog.objects.create(head_arm_leg_body=parts, x=x, y=y, z=z)
+        except Finger.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Finger not found'}, status=404)
+        except HeadArmLegBody.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'HeadArmLegBody not found'}, status=404)
+        except ValueError as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+        return JsonResponse({"message": "done"}, status=201, safe=False)
 
 
 @method_decorator(csrf_exempt, name='dispatch')

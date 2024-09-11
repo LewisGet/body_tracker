@@ -20,3 +20,5 @@ This project body motion track software server side.
     eg: `split_parts=[0.25,0.5,0.75]&split_range=0.1`
     it will match 24% to 26% range logs vector in keyframes gap and avg it.
 3. clean up logger `/record/reset_log`. you need to passing `confirm=true` to execute it.
+4. batch create logger `/record/api/batch/create/action_log/` passing value like
+    `target_id=1,2,3&target_type=1,1,1&x=1,2,3&y=1,2,3&z=1,2,3`
