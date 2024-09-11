@@ -200,3 +200,17 @@ class ResetLogView(GetPostView):
         ImageLog.objects.all().delete()
 
         return JsonResponse({'status': 'done'}, status=201)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ToggleApiView(View):
+    def get(self, request, *args, **kwargs):
+        api_control = ApiControl.objects.first()
+
+        if not api_control:
+            api_control = ApiControl.objects.create(is_enabled=False)
+
+        api_control.is_enabled = not api_control.is_enabled
+        api_control.save()
+
+        return JsonResponse({'status': 'done is ' + str(api_control.is_enabled)}, status=201)
