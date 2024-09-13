@@ -25,6 +25,7 @@ class ActionLogForm(forms.Form):
     x = forms.FloatField(required=True)
     y = forms.FloatField(required=True)
     z = forms.FloatField(required=True)
+    timestamp = forms.IntegerField(required=True)
 
 
 class ImageLogForm(forms.ModelForm):

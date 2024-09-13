@@ -134,7 +134,7 @@ class ActionLog(models.Model):
     x = models.FloatField()
     y = models.FloatField()
     z = models.FloatField()
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField()
 
     def __str__(self):
         json_value = {

@@ -6,6 +6,7 @@ from django.db import transaction
 from django.views import View
 from .models import *
 from .forms import *
+import datetime
 import json
 
 
@@ -103,14 +104,16 @@ class CreateActionLogView(GetPostView):
         x = form.cleaned_data['x']
         y = form.cleaned_data['y']
         z = form.cleaned_data['z']
+        timestamp = form.cleaned_data['timestamp']
+        timestamp = datetime.datetime.fromtimestamp(timestamp / 1000)
 
         try:
             if target_type == 0:
                 parts = Finger.objects.get(id=target_id)
-                action_log = ActionLog.objects.create(finger=parts, x=x, y=y, z=z)
+                action_log = ActionLog.objects.create(finger=parts, x=x, y=y, z=z, timestamp=timestamp)
             else:
                 parts = HeadArmLegBody.objects.get(id=target_id)
-                action_log = ActionLog.objects.create(head_arm_leg_body=parts, x=x, y=y, z=z)
+                action_log = ActionLog.objects.create(head_arm_leg_body=parts, x=x, y=y, z=z, timestamp=timestamp)
 
         except Finger.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Finger not found'}, status=404)
@@ -137,12 +140,13 @@ class BatchCreateActionLogView(GetPostView):
 
         try:
             with transaction.atomic():
-                for target_id, target_type, x, y, z in zip(
+                for target_id, target_type, x, y, z, timestamp in zip(
                     list_format(data['target_id'], int),
                     list_format(data['target_type'], int),
                     list_format(data['x'], float),
                     list_format(data['y'], float),
-                    list_format(data['z'], float)
+                    list_format(data['z'], float),
+                    list_format(data['timestamp'], int)
                 ):
                     data_dict = {
                         "target_id": target_id,
@@ -150,18 +154,21 @@ class BatchCreateActionLogView(GetPostView):
                         "x": x,
                         "y": y,
                         "z": z,
+                        "timestamp": timestamp,
                     }
                     form = ActionLogForm(data_dict)
+
+                    timestamp = datetime.datetime.fromtimestamp(timestamp / 1000)
 
                     if not form.is_valid():
                         raise ValueError('Invalid input')
 
                     if target_type == 0:
                         parts = Finger.objects.get(id=target_id)
-                        action_log = ActionLog.objects.create(finger=parts, x=x, y=y, z=z)
+                        action_log = ActionLog.objects.create(finger=parts, x=x, y=y, z=z, timestamp=timestamp)
                     else:
                         parts = HeadArmLegBody.objects.get(id=target_id)
-                        action_log = ActionLog.objects.create(head_arm_leg_body=parts, x=x, y=y, z=z)
+                        action_log = ActionLog.objects.create(head_arm_leg_body=parts, x=x, y=y, z=z, timestamp=timestamp)
         except Finger.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Finger not found'}, status=404)
         except HeadArmLegBody.DoesNotExist:
