@@ -138,15 +138,28 @@ class BatchCreateActionLogView(GetPostView):
         def list_format(value, type_function):
             return [type_function(d) for d in value.split(",")]
 
+
         try:
             with transaction.atomic():
+                target_ids = list_format(data['target_id'], int)
+                target_types = list_format(data['target_type'], int)
+                timestamps = list_format(data['timestamp'], int)
+
+                if len(target_ids) == 1:
+                    target_ids = [target_ids[0] for i in range(len(timestamps))]
+
+                if len(target_types) == 1:
+                    target_types = [target_types[0] for i in range(len(timestamps))]
+
+
+
                 for target_id, target_type, x, y, z, timestamp in zip(
-                    list_format(data['target_id'], int),
-                    list_format(data['target_type'], int),
+                    target_ids,
+                    target_types,
                     list_format(data['x'], float),
                     list_format(data['y'], float),
                     list_format(data['z'], float),
-                    list_format(data['timestamp'], int)
+                    timestamps
                 ):
                     data_dict = {
                         "target_id": target_id,
