@@ -30,7 +30,7 @@ const long gmtOffset_sec = 0;
 NTPClient timeClient(ntpUDP, ntpServer, gmtOffset_sec, 60000);  // 更新間隔為 60 秒
 
 WiFiClientSecure client;
-const String host = "http://server-ip:8000";
+String request_host = "http://192.168.100.100:8000";
 
 int targetPartsId = 1;
 int targetPartsType = 0;
@@ -131,11 +131,11 @@ void read_bmi(BMI160GenClass BMI160, float& x, float& y, float& z) {
   z = atan2(ax, ay) * 180 / PI;
 }
 
-void httpGetRequest(String url) {
-  if (WiFi.status() == WL_CONNECTED) {
-    WiFiClient client;
-    HTTPClient http;
+HTTPClient httpGetRequest(String url) {
+  HTTPClient http;
+  WiFiClient client;
 
+  if (WiFi.status() == WL_CONNECTED) {
     http.begin(client, url); // 指定 URL
 
     int httpCode = http.GET(); // 執行 GET 請求
@@ -151,10 +151,11 @@ void httpGetRequest(String url) {
   } else {
     Serial.println("WiFi not connected");
   }
+
+  return http;
 }
 
-String floatJoinValue(float* value)
-{
+String floatJoinValue(float* value) {
   String returnValue = "";
 
   for (int i = 0; i < dataSize; i++)
@@ -172,8 +173,7 @@ String floatJoinValue(float* value)
   return returnValue;
 }
 
-String timeJoinValue(unsigned long long* value)
-{
+String timeJoinValue(unsigned long long* value) {
   String returnValue = "";
 
   for (int i = 0; i < dataSize; i++)
@@ -191,8 +191,7 @@ String timeJoinValue(unsigned long long* value)
   return returnValue;
 }
 
-String fiexIntJoinValue(int value)
-{
+String fiexIntJoinValue(int value) {
   String returnValue = "";
 
   for (int i = 0; i < dataSize; i++)
@@ -210,8 +209,7 @@ String fiexIntJoinValue(int value)
   return returnValue;
 }
 
-String dataToUri()
-{
+String dataToUri() {
   String uri = "";
   String xs = "";
   String ys = "";
@@ -232,6 +230,27 @@ String dataToUri()
   return uri;
 }
 
+void initRequestHost() {
+  IPAddress ip = client.localIP();
+
+  for (int i = 0; i < 255; i++)
+  {
+    ip[3] = i;
+
+    HTTPClient http = httpGetRequest("http://" + ip.toString() + ":8000/record/api/scan/location");
+
+    if (http.GET() == 200)
+    {
+      Serial.println("host found: " + request_host);
+      request_host = "http://" + ip.toString() + ":8000";
+      return;
+    }
+  }
+
+  Serial.println("host not found.");
+  return;
+}
+
 void setup() {
   Serial.begin(115200);
   Wire.begin(D1_PIN, D2_PIN);  // SDA, SCL
@@ -239,6 +258,7 @@ void setup() {
   initWIFI();
   connectNTP();
   initBMI();
+  initRequestHost();
 }
 
 void loop() {
@@ -255,7 +275,7 @@ void loop() {
   if (cacheIndex >= dataSize)
   {
     cacheIndex = 0;
-    String url = host + dataToUri();
+    String url = request_host + dataToUri();
     httpGetRequest(url);
   }
 

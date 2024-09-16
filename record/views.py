@@ -234,3 +234,9 @@ class ToggleApiView(View):
         api_control.save()
 
         return JsonResponse({'status': 'done is ' + str(api_control.is_enabled)}, status=201)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ScanLocationView(View):
+    def get(self, request):
+        return JsonResponse({'status': 'done'}, status=200)
