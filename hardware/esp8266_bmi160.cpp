@@ -244,8 +244,8 @@ void initRequestHost() {
 
     if (http.GET() == 200)
     {
-      Serial.println("host found: " + request_host);
       request_host = "http://" + search_ip + ":8000";
+      Serial.println("host found: " + request_host);
       return;
     }
   }
