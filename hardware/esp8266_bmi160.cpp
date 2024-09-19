@@ -22,6 +22,7 @@ const char *ssid = "lewis-wifi";
 const char *password = "password";
 
 WiFiUDP ntpUDP;
+ESP8266WiFiClass Wifi;
 
 const char* ntpServer = "pool.ntp.org";
 // const long gmtOffset_sec = 28800; // +8 utm
@@ -231,18 +232,20 @@ String dataToUri() {
 }
 
 void initRequestHost() {
-  IPAddress ip = client.localIP();
+  IPAddress ip = Wifi.localIP();
 
   for (int i = 0; i < 255; i++)
   {
     ip[3] = i;
 
-    HTTPClient http = httpGetRequest("http://" + ip.toString() + ":8000/record/api/scan/location");
+    String search_ip = ip.toString();
+    HTTPClient http = httpGetRequest("http://" + search_ip + ":8000/record/api/scan/location");
+    Serial.println("search ip: " + search_ip);
 
     if (http.GET() == 200)
     {
       Serial.println("host found: " + request_host);
-      request_host = "http://" + ip.toString() + ":8000";
+      request_host = "http://" + search_ip + ":8000";
       return;
     }
   }
