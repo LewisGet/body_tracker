@@ -36,8 +36,10 @@ String request_host = "http://192.168.100.100:8000";
 int targetPartsId = 1;
 int targetPartsType = 0;
 
-int cacheIndex = 0;
-int dataSize = 40 * 5; // 40 fps，五秒 upload 一次
+unsigned int cacheIndex = 0;
+unsigned int pushIndex = 0;
+unsigned int dataPushStep = 100;
+unsigned int dataSize = 40 * 5; // 40 fps，五秒 upload 一次
 float cacheX[200];
 float cacheY[200];
 float cacheZ[200];
@@ -254,6 +256,16 @@ void initRequestHost() {
   return;
 }
 
+void initCache() {
+  for (int i = 0; i < dataSize; i++)
+  {
+    cacheX[cacheIndex] = 0;
+    cacheY[cacheIndex] = 0;
+    cacheZ[cacheIndex] = 0;
+    cacheTime[cacheIndex] = 0;
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   Wire.begin(D1_PIN, D2_PIN);  // SDA, SCL
@@ -261,6 +273,7 @@ void setup() {
   initWIFI();
   connectNTP();
   initBMI();
+  initCache();
   initRequestHost();
 }
 
@@ -274,10 +287,16 @@ void loop() {
   cacheTime[cacheIndex] = getTimestamp();
 
   cacheIndex = cacheIndex + 1;
+  pushIndex = pushIndex + 1;
 
   if (cacheIndex >= dataSize)
   {
     cacheIndex = 0;
+  }
+
+  if (pushIndex >= dataPushStep)
+  {
+    pushIndex = 0;
     String url = request_host + dataToUri();
     httpGetRequest(url);
   }
