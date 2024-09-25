@@ -158,6 +158,31 @@ HTTPClient httpGetRequest(String url) {
   return http;
 }
 
+HTTPClient httpPostRequest(String url, String payload) {
+  HTTPClient http;
+  WiFiClient client;
+
+  if (WiFi.status() == WL_CONNECTED) {
+    http.begin(client, url);
+    http.addHeader("Content-Type", "application/json");
+
+    int httpCode = http.POST(payload); // 執行 POST 請求
+
+    if (httpCode > 0) { // 檢查 HTTP 回應碼
+      String payload = http.getString(); // 獲取回應內容
+      Serial.println(payload);
+    } else {
+      Serial.printf("GET request failed, error: %s\n", http.errorToString(httpCode).c_str());
+    }
+
+    http.end(); // 關閉連接
+  } else {
+    Serial.println("WiFi not connected");
+  }
+
+  return http;
+}
+
 String floatJoinValue(float* value) {
   String returnValue = "";
 
@@ -233,6 +258,34 @@ String dataToUri() {
   return uri;
 }
 
+String dataToJson() {
+  String payload = "";
+  String xs = "";
+  String ys = "";
+  String zs = "";
+  String times = "";
+  // String targetIds = "";
+  // String targetTypes = "";
+
+  xs = floatJoinValue(cacheX);
+  ys = floatJoinValue(cacheY);
+  zs = floatJoinValue(cacheZ);
+  times = timeJoinValue(cacheTime);
+  // targetIds = fiexIntJoinValue(targetPartsId);
+  // targetTypes = fiexIntJoinValue(targetPartsType);
+
+  payload = "{";
+    payload += "\"x\": \"" + String(xs) + "\",";
+    payload += "\"y\": \"" + String(ys) + "\",";
+    payload += "\"z\": \"" + String(zs) + "\",";
+    payload += "\"timestamp\": \"" + String(times) + "\",";
+    payload += "\"target_id\": \"" + String(targetPartsId) + "\",";
+    payload += "\"target_type\": \"" + String(targetPartsType) + "\"";
+  payload += "}";
+
+  return payload;
+}
+
 void initRequestHost() {
   IPAddress ip = Wifi.localIP();
 
@@ -297,8 +350,8 @@ void loop() {
   if (pushIndex >= dataPushStep)
   {
     pushIndex = 0;
-    String url = request_host + dataToUri();
-    httpGetRequest(url);
+    String url = request_host + "/record/api/batch/create/action_log/";
+    httpPostRequest(url, dataToJson());
   }
 
   delay(25);
