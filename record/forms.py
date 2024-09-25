@@ -31,4 +31,4 @@ class ActionLogForm(forms.Form):
 class ImageLogForm(forms.ModelForm):
     class Meta:
         model = ImageLog
-        fields = ['image']
+        fields = ['image', 'timestamp']

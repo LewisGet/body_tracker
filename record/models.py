@@ -153,7 +153,7 @@ class ActionLog(models.Model):
 
 class ImageLog(models.Model):
     image = models.ImageField(upload_to=image_upload_rename)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField()
 
     def __str__(self):
         return str(self.id) + " - " + str(self.timestamp)
