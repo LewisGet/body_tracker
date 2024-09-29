@@ -233,7 +233,7 @@ class ToggleApiView(View):
         api_control.is_enabled = not api_control.is_enabled
         api_control.save()
 
-        return JsonResponse({'status': 'done is ' + str(api_control.is_enabled)}, status=201)
+        return JsonResponse({'status': 'done. now status is: ' + str(api_control.is_enabled)}, status=201)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
