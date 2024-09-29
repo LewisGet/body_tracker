@@ -19,7 +19,11 @@ def get_csrf_token():
 
 def create_image_post(frame, timestamp):
     _, img_encoded = cv2.imencode('.jpg', frame)
-    csrf = get_csrf_token()
+
+    try:
+        csrf = get_csrf_token()
+    except:
+        return False
 
     files = {'image': ('image.jpg', img_encoded.tobytes(), 'image/jpeg')}
     data = {'timestamp': timestamp, 'csrfmiddlewaretoken': csrf}
@@ -47,7 +51,6 @@ while True:
         break
 
     timestamp = datetime.datetime.fromtimestamp(float(time.time()))
-    cv2.imshow('USB Camera', frame)
 
     create_image_post(frame, timestamp)
     time.sleep(1000 / 40 / 1000)
