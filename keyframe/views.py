@@ -55,10 +55,10 @@ class BatchKeyframeCreateView(View):
 
 class SmoothFrameView(View):
     def get(self, request):
-        time_range = int(request.GET.get('time_range', 100))  # 毫秒
-        split_range  = float(request.GET.get('split_range', 0.01))  # 百分比
-        split_parts = request.GET.get('split_parts', '0.25,0.5,0.75')
-        split_parts = [float(point) for point in split_parts.split(',')]
+        self.time_range = int(request.GET.get('time_range', 100))  # 毫秒
+        self.split_range  = float(request.GET.get('split_range', 0.01))  # 百分比
+        self.split_parts = request.GET.get('split_parts', '0.25,0.5,0.75')
+        self.split_parts = [float(point) for point in self.split_parts.split(',')]
 
         finger_keyframe_logs = dict()
         body_keyframe_logs = dict()
@@ -106,16 +106,16 @@ class SmoothFrameView(View):
         segment_logs = []
 
         for keyframe in keyframes:
-            keyframe_logs.extend(self.avg_logs(keyframe.timestamp, time_range, logs, part))
+            keyframe_logs.extend(self.avg_logs(keyframe.timestamp, self.time_range, logs, part))
 
         for i in range(len(keyframes) - 1):
             start_time = keyframes[i].timestamp
             end_time = keyframes[i + 1].timestamp
             total_gap = (end_time - start_time).total_seconds() * 1000
 
-            for split in split_parts:
+            for split in self.split_parts:
                 base_split_time = start_time + timedelta(milliseconds=total_gap * split)
-                segment_logs.extend(self.avg_logs(base_split_time, total_gap * split_range, logs, part))
+                segment_logs.extend(self.avg_logs(base_split_time, total_gap * self.split_range, logs, part))
 
         return keyframe_logs, segment_logs
 
