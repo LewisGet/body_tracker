@@ -78,7 +78,7 @@ class SmoothFrameView(View):
             finger_segment_logs[this_index] = []
             this_finger_logs = all_finger_logs.filter(finger=finger)
 
-            _keyframe_logs, _segment_logs = self.keyframe_and_segment(all_keyframes, this_finger_logs)
+            _keyframe_logs, _segment_logs = self.keyframe_and_segment(all_keyframes, this_finger_logs, finger)
             finger_keyframe_logs[this_index].extend(_keyframe_logs)
             finger_segment_logs[this_index].extend(_segment_logs)
 
@@ -88,7 +88,7 @@ class SmoothFrameView(View):
             body_segment_logs[this_index] = []
             this_body_logs = all_body_logs.filter(head_arm_leg_body=body_part)
 
-            _keyframe_logs, _segment_logs = self.keyframe_and_segment(all_keyframes, this_body_logs)
+            _keyframe_logs, _segment_logs = self.keyframe_and_segment(all_keyframes, this_body_logs, body_part)
             body_keyframe_logs[this_index].extend(_keyframe_logs)
             body_segment_logs[this_index].extend(_segment_logs)
 
@@ -101,12 +101,12 @@ class SmoothFrameView(View):
 
         return JsonResponse(context, status=201)
 
-    def keyframe_and_segment(self, keyframes, logs):
+    def keyframe_and_segment(self, keyframes, logs, part):
         keyframe_logs = []
         segment_logs = []
 
         for keyframe in keyframes:
-            keyframe_logs.extend(self.avg_logs(keyframe.timestamp, time_range, logs))
+            keyframe_logs.extend(self.avg_logs(keyframe.timestamp, time_range, logs, part))
 
         for i in range(len(keyframes) - 1):
             start_time = keyframes[i].timestamp
@@ -115,12 +115,12 @@ class SmoothFrameView(View):
 
             for split in split_parts:
                 base_split_time = start_time + timedelta(milliseconds=total_gap * split)
-                segment_logs.extend(self.avg_logs(base_split_time, total_gap * split_range, logs))
+                segment_logs.extend(self.avg_logs(base_split_time, total_gap * split_range, logs, part))
 
         return keyframe_logs, segment_logs
 
 
-    def avg_logs(self, base_timestamp, time_window, logs):
+    def avg_logs(self, base_timestamp, time_window, logs, part):
         filtered_logs = []
 
         start_time = base_timestamp - timedelta(milliseconds=time_window)
@@ -128,9 +128,9 @@ class SmoothFrameView(View):
         logs = logs.filter(timestamp__range=(start_time, end_time))
 
         if logs.exists():
-            avg_x = logs.aggregate(Avg('x'))['x__avg']
-            avg_y = logs.aggregate(Avg('y'))['y__avg']
-            avg_z = logs.aggregate(Avg('z'))['z__avg']
+            avg_x = logs.aggregate(Avg('x'))['x__avg'] - part.baseline_x
+            avg_y = logs.aggregate(Avg('y'))['y__avg'] - part.baseline_y
+            avg_z = logs.aggregate(Avg('z'))['z__avg'] - part.baseline_z
 
             filtered_logs.append({
                 'timestamp': base_timestamp,
