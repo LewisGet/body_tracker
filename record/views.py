@@ -210,9 +210,9 @@ class CreateImageLogView(GetPostView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class ResetLogView(GetPostView):
-    def create(self, data):
-        confirm = str(data.get('confirm', "false")) == "true"
+class ResetLogView(View):
+    def get(self, request):
+        confirm = str(request.GET.get('confirm', "false")) == "true"
 
         if not confirm:
             return JsonResponse({'status': 'error', 'message': 'stop reset'}, status=500)
