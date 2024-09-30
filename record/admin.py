@@ -18,6 +18,7 @@ class ApiControlAdmin(admin.ModelAdmin):
 @admin.register(ActionLog)
 class ActionLogAdmin(BaseAdmin):
     list_display = ('finger', 'head_arm_leg_body', 'x', 'y', 'z', 'formatted_datetime')
+    list_filter = ('finger', 'head_arm_leg_body', 'timestamp')
     search_fields = ('finger__hand', 'finger__finger_index', 'finger__segment_type', 'head_arm_leg_body__side', 'head_arm_leg_body__segment_type')
 
 
