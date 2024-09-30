@@ -1,6 +1,7 @@
 # What is this?
 
-This project body motion track software server side.
+This project is body motion track software.
+
 
 ## Final target
 
@@ -8,6 +9,7 @@ This project body motion track software server side.
 2. [x] ~~Receive hardware signo and calculate motion frame.~~
 3. [x] ~~Sending frame motion to blender client script.~~
 4. [x] ~~Select key log frame and smooth between keyframes logs.~~
+
 
 ## api
 
@@ -34,3 +36,13 @@ init script
 filename = "path_project/blender/main.py"
 exec(compile(open(filename).read(), filename, 'exec'))
 ```
+
+
+## web panel
+
+to auto enable, disable hardware signal recording panel `/record/panel`
+
+
+## now testing status preview
+
+[![Watch the video](https://img.youtube.com/vi/9I-nfS2DxPA/maxresdefault.jpg)](https://youtu.be/9I-nfS2DxPA)
