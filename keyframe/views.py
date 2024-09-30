@@ -119,7 +119,6 @@ class SmoothFrameView(View):
 
         return keyframe_logs, segment_logs
 
-
     def avg_logs(self, base_timestamp, time_window, logs, part):
         filtered_logs = []
 
@@ -128,9 +127,13 @@ class SmoothFrameView(View):
         logs = logs.filter(timestamp__range=(start_time, end_time))
 
         if logs.exists():
-            avg_x = logs.aggregate(Avg('x'))['x__avg'] - part.baseline_x
-            avg_y = logs.aggregate(Avg('y'))['y__avg'] - part.baseline_y
-            avg_z = logs.aggregate(Avg('z'))['z__avg'] - part.baseline_z
+            bx = 0.0 if part.baseline_x is None else part.baseline_x
+            by = 0.0 if part.baseline_x is None else part.baseline_y
+            bz = 0.0 if part.baseline_x is None else part.baseline_z
+
+            avg_x = logs.aggregate(Avg('x'))['x__avg'] - bx
+            avg_y = logs.aggregate(Avg('y'))['y__avg'] - by
+            avg_z = logs.aggregate(Avg('z'))['z__avg'] - bz
 
             filtered_logs.append({
                 'timestamp': base_timestamp,
