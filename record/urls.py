@@ -14,4 +14,5 @@ urlpatterns = [
     path('panel', TemplateView.as_view(template_name='panel.html'), name='panel'),
     path('api/scan/location', ScanLocationView.as_view(), name='api_scan_location'),
     path('hardware/connect/status', HardwareStatusView.as_view(), name='hardware_status_view'),
+    path('setup/baseline/', SetupBaselineView.as_view(), name='setup_baseline'),
 ]

@@ -26,6 +26,7 @@ This project is body motion track software.
     `target_id=1,2,3&target_type=1,1,1&x=1,2,3&y=1,2,3&z=1,2,3&timestamp=1,1,1` or
     same `target_type` `target_id=1,2,3&target_type=1&x=1,2,3&y=1,2,3&z=1,2,3&timestamp=1,1,1` or
     same id and type `target_id=1&target_type=1&x=1,2,3&y=1,2,3&z=1,2,3&timestamp=1,1,1`
+5. setup baseline by record action logs `/record/setup/baseline` it will average all five seconds vectors. this data not include before three seconds ending data.
 
 
 ## blender

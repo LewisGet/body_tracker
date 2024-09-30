@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.db.models import Avg
 from django.db import transaction
 from django.views import View
 from .models import *
@@ -271,3 +272,45 @@ class HardwareStatusView(View):
             })
 
         return render(request, 'hardware_status.html', {'result': result})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class SetupBaselineView(View):
+    def get(self, request):
+        all_finger = Finger.objects.all().order_by('id')
+        all_body = HeadArmLegBody.objects.all().order_by('id')
+        all_logs = ActionLog.objects.all().order_by('timestamp')
+        last_timestamp = all_logs[len(all_logs) - 1].timestamp
+
+        start = last_timestamp - datetime.timedelta(seconds=8)
+        end = last_timestamp - datetime.timedelta(seconds=3)
+
+        all_logs = all_logs.filter(timestamp__range=(start, end))
+        all_finger_logs = all_logs.filter(finger__isnull=False)
+        all_body_logs = all_logs.filter(head_arm_leg_body__isnull=False)
+
+        for finger in all_finger:
+            this_finger_logs = all_finger_logs.filter(finger=finger)
+
+            avg_x = this_finger_logs.aggregate(Avg('x'))['x__avg']
+            avg_y = this_finger_logs.aggregate(Avg('y'))['y__avg']
+            avg_z = this_finger_logs.aggregate(Avg('z'))['z__avg']
+
+            finger.baseline_x = avg_x
+            finger.baseline_y = avg_y
+            finger.baseline_z = avg_z
+            finger.save()
+
+        for body_part in all_body:
+            this_body_logs = all_body_logs.filter(head_arm_leg_body=body_part)
+
+            avg_x = this_body_logs.aggregate(Avg('x'))['x__avg']
+            avg_y = this_body_logs.aggregate(Avg('y'))['y__avg']
+            avg_z = this_body_logs.aggregate(Avg('z'))['z__avg']
+
+            body_part.baseline_x = avg_x
+            body_part.baseline_y = avg_y
+            body_part.baseline_z = avg_z
+            body_part.save()
+
+        return JsonResponse({'status': 'done'}, status=200)
