@@ -40,7 +40,8 @@ exec(compile(open(filename).read(), filename, 'exec'))
 
 ## web panel
 
-to auto enable, disable hardware signal recording panel `/record/panel`
+1. to auto enable, disable hardware signal recording panel `/record/panel`
+2. hardware connect panel `/record/hardware/connect/status`
 
 
 ## now testing status preview

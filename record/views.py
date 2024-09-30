@@ -240,3 +240,34 @@ class ToggleApiView(View):
 class ScanLocationView(View):
     def get(self, request):
         return JsonResponse({'status': 'done'}, status=200)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class HardwareStatusView(View):
+    def get(self, request):
+        last_contact = datetime.datetime.now() - datetime.timedelta(seconds=3)
+
+        fingers = Finger.objects.all()
+        body_parts = HeadArmLegBody.objects.all()
+
+        result = []
+
+        for finger in fingers:
+            has_recent_log = ActionLog.objects.filter(finger=finger, timestamp__gte=last_contact).exists()
+            result.append({
+                'id': finger.id,
+                'content': finger.to_dict(),
+                'connect': has_recent_log,
+                'is_body': False
+            })
+
+        for part in body_parts:
+            has_recent_log = ActionLog.objects.filter(head_arm_leg_body=part, timestamp__gte=last_contact).exists()
+            result.append({
+                'id': part.id,
+                'content': part.to_dict(),
+                'connect': has_recent_log,
+                'is_body': True
+            })
+
+        return render(request, 'hardware_status.html', {'result': result})
