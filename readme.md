@@ -6,7 +6,7 @@ This project body motion track software server side.
 
 1. [ ] T-body correction gyroscope.
 2. [x] ~~Receive hardware signo and calculate motion frame.~~
-3. [ ] Sending frame motion to blender client script.
+3. [x] ~~Sending frame motion to blender client script.~~
 4. [x] ~~Select key log frame and smooth between keyframes logs.~~
 
 ## api
@@ -24,3 +24,13 @@ This project body motion track software server side.
     `target_id=1,2,3&target_type=1,1,1&x=1,2,3&y=1,2,3&z=1,2,3&timestamp=1,1,1` or
     same `target_type` `target_id=1,2,3&target_type=1&x=1,2,3&y=1,2,3&z=1,2,3&timestamp=1,1,1` or
     same id and type `target_id=1&target_type=1&x=1,2,3&y=1,2,3&z=1,2,3&timestamp=1,1,1`
+
+
+## blender
+
+init script
+
+```py
+filename = "path_project/blender/main.py"
+exec(compile(open(filename).read(), filename, 'exec'))
+```
