@@ -1,4 +1,5 @@
 from django.contrib import admin
+from body_tracker.common_admin import BaseAdmin
 from .models import *
 
 
@@ -15,8 +16,8 @@ class ApiControlAdmin(admin.ModelAdmin):
 
 
 @admin.register(ActionLog)
-class ActionLogAdmin(admin.ModelAdmin):
-    list_display = ('finger', 'head_arm_leg_body', 'x', 'y', 'z', 'timestamp')
+class ActionLogAdmin(BaseAdmin):
+    list_display = ('finger', 'head_arm_leg_body', 'x', 'y', 'z', 'formatted_datetime')
     search_fields = ('finger__hand', 'finger__finger_index', 'finger__segment_type', 'head_arm_leg_body__side', 'head_arm_leg_body__segment_type')
 
 
@@ -28,7 +29,7 @@ class HeadArmLegBodyAdmin(admin.ModelAdmin):
 
 
 @admin.register(ImageLog)
-class ImageLogAdmin(admin.ModelAdmin):
-    list_display = ('id', 'timestamp')
+class ImageLogAdmin(BaseAdmin):
+    list_display = ('id', 'formatted_datetime')
     list_filter = ('id', 'timestamp')
     search_fields = ('id', 'timestamp')
