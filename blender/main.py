@@ -3,6 +3,7 @@ import json
 import datetime
 import requests
 from math import radians
+from math import degrees
 
 
 fps = 40
@@ -26,6 +27,22 @@ def get_min_timestamp(data):
 
     return min(timestamps)
 
+def get_parent_rotation(obj):
+    x, y, z = 0, 0, 0
+
+    while True:
+        if obj.parent:
+            obj = obj.parent
+            obj.rotation_mode = 'XYZ'
+            x = x + degrees(obj.rotation_euler.x)
+            y = y + degrees(obj.rotation_euler.y)
+            z = z + degrees(obj.rotation_euler.z)
+        else:
+            break
+
+    return x, y, z
+
+rotation_weight = 0.25
 data = get_json()
 timebase = get_min_timestamp(data)
 bpy.ops.object.mode_set(mode='POSE')
@@ -48,6 +65,14 @@ for keyframe_type in data:
             frame = int((start_timestamp - timebase) * fps)
 
             bone.rotation_mode = 'XYZ'
-            bone.rotation_euler = (radians(part_log['x']), radians(part_log['y']), radians(part_log['z']))
+
+            x, y, z = part_log['x'] * rotation_weight, part_log['y'] * rotation_weight, part_log['z'] * rotation_weight
+            parent_x, parent_y, parent_z = get_parent_rotation(bone)
+
+            x = radians(x - parent_x)
+            y = radians(y - parent_y)
+            z = radians(z - parent_z)
+
+            bone.rotation_euler = (x, y, z)
             bone.keyframe_insert(data_path="rotation_euler", frame=frame)
             bpy.context.view_layer.update()
